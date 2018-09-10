@@ -13,7 +13,7 @@ int get_parent(int v) {
     return parent[v] = get_parent(parent[v]);
 }
 
-void union_sets(int a, int b) {
+bool union_sets(int a, int b) {
     a = get_parent(a);
     b = get_parent(b);
     if (a != b) {
@@ -22,7 +22,9 @@ void union_sets(int a, int b) {
         }
         parent[b] = a;
         size[a] += size[b];
+        return true;
     }
+    return false;
 }
 
 void init_dsu(int n) {
