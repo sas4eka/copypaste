@@ -2,33 +2,30 @@
 
 using namespace std;
 
-const int N = 50005;
-const int L = 20;
+const int N = 10005;
+const int L = 22;
 
-vector<pair<int, int> > g[N];
+vector<int> g[N];
 
-int d[N];
 int tin[N];
 int tout[N];
 int timer = 0;
 int par[N][L];
 int l;
 
-void dfs(int v, int dist, int parent) {
+void dfs(int v, int parent) {
     tin[v] = ++timer;
-    d[v] = dist;
 
     par[v][0] = parent;
     for (int k = 1; k <= l; k++) {
         par[v][k] = par[par[v][k-1]][k-1];
     }
 
-    for (int j = 0; j < g[v].size(); j++) {
-        pair<int, int> next = g[v][j];
-        if (next.first == parent) {
+    for (int next : g[v]) {
+        if (next == parent) {
             continue;
         }
-        dfs(next.first, dist + next.second, v);
+        dfs(next, v);
     }
     tout[v] = ++timer;
 }
@@ -49,43 +46,53 @@ int lca(int a, int b) {
     return par[a][0];
 }
 
-void precalc(int n) {
+void precalc(int n, int root) {
     l = 1;
     while( (1 << l) <= n) {
         l++;
     }
 
-    dfs(0, 0, 0);
+    dfs(root, root);
 }
 
-int get_dist(int a, int b) {
-    int ca = lca(a, b);
-    return d[a] + d[b] - 2*d[ca];
+void solve() {
+    for (int i = 0; i < N; i++) {
+        g[i].clear();
+    }
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        int k;
+        cin >> k;
+        for (int j = 0; j < k; j++) {
+            int x;
+            cin >> x;
+            x--;
+            g[i].push_back(x);
+            g[x].push_back(i);
+        }
+    }
+    int root = 0;
+
+    precalc(n, root);
+
+    int q;
+    cin >> q;
+    for (int i = 0; i < q; i++) {
+        int a, b;
+        cin >> a >> b;
+        a--;
+        b--;
+        cout << lca(a, b) + 1 << "\n";
+    }
 }
 
 int main() {
-    int n = 5;
-    g[0].push_back(make_pair(1, 1));
-    g[1].push_back(make_pair(0, 1));
-    g[0].push_back(make_pair(2, 1));
-    g[2].push_back(make_pair(0, 1));
-    g[2].push_back(make_pair(3, 1));
-    g[3].push_back(make_pair(2, 1));
-    g[2].push_back(make_pair(4, 1));
-    g[4].push_back(make_pair(2, 1));
-
-    printf("   0    \n");
-    printf("  / \\  \n");
-    printf(" 1   2  \n");
-    printf("    / \\\n");
-    printf("   3   4\n");
-
-    precalc(n);
-
-    printf("dist(0, 1): %d\n", get_dist(0, 1));
-    printf("dist(0, 4): %d\n", get_dist(0, 4));
-    printf("dist(1, 3): %d\n", get_dist(1, 3));
-    printf("dist(3, 4): %d\n", get_dist(3, 4));
-
+    int T;
+    cin >> T;
+    for (int i = 0; i < T; i++) {
+        cout << "Case " << (i+1) << ":\n";
+        solve();
+    }
     return 0;
 }
